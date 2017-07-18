@@ -11,78 +11,53 @@ class BooksApp extends React.Component {
     constructor() {
         super()
         const that = this
-        let currentlyReadingList = [], wantToReadList = [], readList = []
+        let bookList = []
         BooksAPI.getAll().then(function(result) {
             result.map((book) => {
-                if(book.shelf === 'currentlyReading') {
-                    currentlyReadingList.push({
-                        id: book.id,
-                        title: book.title,
-                        authors: book.authors,
-                        url: book.imageLinks.smallThumbnail
-                    })
-                } else if(book.shelf === 'wantToRead') {
-                    wantToReadList.push({
-                        id: book.id,
-                        title: book.title,
-                        authors: book.authors,
-                        url: book.imageLinks.smallThumbnail
-                    })
-                } else if(book.shelf === 'read') {
-                    readList.push({
-                        id: book.id,
-                        title: book.title,
-                        authors: book.authors,
-                        url: book.imageLinks.smallThumbnail
-                    })
-                }
+                bookList.push({
+                    id: book.id,
+                    shelf: book.shelf,
+                    title: book.title,
+                    authors: book.authors,
+                    url: book.imageLinks.smallThumbnail
+                })
             })
             that.setState({
-                currentlyReadingList: currentlyReadingList,
-                wantToReadList: wantToReadList,
-                readList: readList
+                bookList: bookList
             })
         })
     }
     state = {
-        currentlyReadingList: [],
-        wantToReadList: [],
-        readList: []
+        bookList: []
     }
 
-    changeBookshelf = (originBookShelf, resultBookshelf, index) => {
-        if(originBookShelf === 'currentlyReading') {
-            this.setState((state) => {
-                const book = state.currentlyReadingList.splice(index, 1)
-                if(resultBookshelf === 'wantToRead') {
-                    state.wantToReadList = state.wantToReadList.concat(book)
-                    BooksAPI.update(book[0], 'wantToRead')
-                }else if(resultBookshelf === 'read') {
-                    state.readList = state.readList.concat(book)
-                    BooksAPI.update(book[0], 'read')
-                }
-            })
-        }else if(originBookShelf === 'wantToRead') {
-            this.setState((state) => {
-                const book = state.wantToReadList.splice(index, 1)
-                if(resultBookshelf === 'currentlyReading') {
-                    state.currentlyReadingList = state.currentlyReadingList.concat(book)
-                    BooksAPI.update(book[0], 'currentlyReading')
-                }else if(resultBookshelf === 'read') {
-                    state.readList = state.readList.concat(book)
-                    BooksAPI.update(book[0], 'read')
-                }
-            })
-        }else if(originBookShelf === 'read') {
-            this.setState((state) => {
-                const book = state.readList.splice(index, 1)
-                if(resultBookshelf === 'currentlyReading') {
-                    state.currentlyReadingList = state.currentlyReadingList.concat(book)
-                    BooksAPI.update(book[0], 'currentlyReading')
-                }else if(resultBookshelf === 'wantToRead') {
-                    state.wantToReadList = state.wantToReadList.concat(book)
-                    BooksAPI.update(book[0], 'wantToRead')
-                }
+    changeBookshelf = (id, resultBookshelf) => {
+        const that = this
+        let isNew = true
+        for(let i=0; i<this.state.bookList.length; i++) {
+            if(this.state.bookList[i].id === id) {
+                this.setState((state) => {
+                    state.bookList[i].shelf = resultBookshelf
+                })
+                BooksAPI.update(this.state.bookList[i], resultBookshelf)
+                isNew = false
+                break
+            }
+        }
+        if(isNew) {
+            BooksAPI.get(id).then(function(result) {
+                const authors = result.authors ? result.authors : ''
+                const url = result.imageLinks ? result.imageLinks.smallThumbnail : ''
+                that.setState((state) => {
+                    state.bookList = state.bookList.concat([{
+                        id: result.id,
+                        shelf: resultBookshelf,
+                        title: result.title,
+                        authors: authors,
+                        url: url
+                    }])
+                })
+                BooksAPI.update(result, resultBookshelf)
             })
         }
     }
@@ -91,7 +66,7 @@ class BooksApp extends React.Component {
         return (
             <div className="app">
                 <Route exact path="/search" render={() => (
-                    <SearchView/>
+                    <SearchView onChangeBookshelf={this.changeBookshelf} bookList={this.state.bookList}/>
                 )}/>
                 <Route exact path="/" render={() => (
                     <div className="list-books">
@@ -99,9 +74,9 @@ class BooksApp extends React.Component {
                             <h1>MyReads</h1>
                         </div>
                         <div className="list-books-content">
-                            <CurrentlyReading onChangeBookshelf={this.changeBookshelf} bookList={this.state.currentlyReadingList}/>
-                            <WantToRead onChangeBookshelf={this.changeBookshelf} bookList={this.state.wantToReadList}/>
-                            <Read onChangeBookshelf={this.changeBookshelf} bookList={this.state.readList}/>
+                            <CurrentlyReading onChangeBookshelf={this.changeBookshelf} bookList={this.state.bookList}/>
+                            <WantToRead onChangeBookshelf={this.changeBookshelf} bookList={this.state.bookList}/>
+                            <Read onChangeBookshelf={this.changeBookshelf} bookList={this.state.bookList}/>
                         </div>
                         <div className="open-search">
                             <Link to="search">Add a book</Link>

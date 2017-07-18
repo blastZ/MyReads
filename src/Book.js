@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import $ from 'jquery'
 
 class Book extends Component {
     state = {
@@ -8,11 +7,9 @@ class Book extends Component {
 
     change = (e) => {
         this.setState({value: e.target.value})
-        const id = this.props.dataKey
-        console.log(id)
-        const index = $(e.target).parent().parent().parent().parent().index()
+        const id = this.props.id
         const resultBookshelf = e.target.value
-        this.props.onChange(resultBookshelf, index)
+        this.props.onChange(id, resultBookshelf)
     }
 
     render() {

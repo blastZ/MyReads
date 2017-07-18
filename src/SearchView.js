@@ -12,7 +12,6 @@ class SearchView extends Component {
         const that = this
         if(e.key === 'Enter') {
             BooksAPI.search(e.target.value).then(function(result) {
-                console.log(result)
                 if(Array.isArray(result)) {
                     that.setState({resultList: result})
                 } else {
@@ -20,6 +19,20 @@ class SearchView extends Component {
                 }
             })
         }
+    }
+
+    change = (id, resultBookshelf) => {
+        this.props.onChangeBookshelf(id, resultBookshelf)
+    }
+
+    getShelf = (id) => {
+        const bookList = this.props.bookList
+        for(let i=0; i<bookList.length; i++) {
+            if(bookList[i].id === id) {
+                return (bookList[i].shelf)
+            }
+        }
+        return 'none'
     }
 
     render() {
@@ -35,7 +48,12 @@ class SearchView extends Component {
                 <ol className="books-grid">{
                     this.state.resultList.map((result) => (
                         <li key={result.id}>
-                            <Book dataKey={result.id} bookshelf={result.shelf} title={result.title} authors={result.authors} url={result.imageLinks ? result.imageLinks.smallThumbnail : ''}/>
+                            <Book onChange={this.change}
+                                  id={result.id}
+                                  bookshelf={this.getShelf(result.id)}
+                                  title={result.title}
+                                  authors={result.authors}
+                                  url={result.imageLinks ? result.imageLinks.smallThumbnail : ''}/>
                         </li>
                     ))
                 }</ol>

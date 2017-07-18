@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import Book from './Book.js'
 
 class Read extends Component {
-    change = (resultBookshelf, index) => {
-        this.props.onChangeBookshelf('read', resultBookshelf, index)
+    change = (id, resultBookshelf) => {
+        this.props.onChangeBookshelf(id, resultBookshelf)
     }
     render() {
         return (
@@ -12,7 +12,9 @@ class Read extends Component {
                 <div className="bookshelf-books">
                     <ol className="books-grid">{
                         this.props.bookList.map((book) => (
-                            <li key={book.title}><Book onChange={this.change} bookshelf='read' title={book.title} authors={book.authors} url={book.url}/></li>
+                            book.shelf === 'read' ?
+                            (<li key={book.title}><Book id={book.id} onChange={this.change} bookshelf={book.shelf} title={book.title} authors={book.authors} url={book.url}/></li>)
+                            : ''
                         ))
                     }</ol>
                 </div>
