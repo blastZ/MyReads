@@ -8,10 +8,13 @@ import Read from './Read.js'
 import { Route, Link } from 'react-router-dom'
 
 class BooksApp extends React.Component {
-    constructor() {
-        super()
+    state = {
+        bookList: []
+    }
+
+    componentDidMount() {
         const that = this
-        let bookList = []
+        const bookList = []
         BooksAPI.getAll().then(function(result) {
             result.map((book) => {
                 bookList.push({
@@ -26,9 +29,6 @@ class BooksApp extends React.Component {
                 bookList: bookList
             })
         })
-    }
-    state = {
-        bookList: []
     }
 
     changeBookshelf = (id, resultBookshelf) => {

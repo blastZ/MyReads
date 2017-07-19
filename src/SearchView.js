@@ -4,21 +4,30 @@ import Book from './Book.js'
 import { Link } from 'react-router-dom'
 
 class SearchView extends Component {
+    constructor() {
+        super()
+        this.searchTimeout = null
+    }
+
     state = {
         resultList: []
     }
 
-    handleKeyPress = (e) => {
+    queryChange = (e) => {
         const that = this
-        if(e.key === 'Enter') {
-            BooksAPI.search(e.target.value).then(function(result) {
+        const value = e.target.value
+        if(this.searchTimeout) {
+            clearTimeout(this.searchTimeout)
+        }
+        this.searchTimeout = setTimeout(function() {
+            BooksAPI.search(value).then(function(result) {
                 if(Array.isArray(result)) {
                     that.setState({resultList: result})
                 } else {
-                    window.alert('No terms matched your query.')
+                    that.setState({resultList: []})
                 }
             })
-        }
+        }, 300)
     }
 
     change = (id, resultBookshelf) => {
@@ -41,7 +50,7 @@ class SearchView extends Component {
               <div className="search-books-bar">
                 <Link to="/" className="close-search">Close</Link>
                 <div className="search-books-input-wrapper">
-                  <input onKeyPress={this.handleKeyPress} type="text" placeholder="Search by title or author"/>
+                  <input onChange={this.queryChange} type="text" placeholder="Search by title or author"/>
                 </div>
               </div>
               <div className="search-books-results">
