@@ -56,7 +56,7 @@ class SearchView extends Component {
               <div className="search-books-results">
                 <ol className="books-grid">{
                     this.state.resultList.map((result) => (
-                        <li key={result.id}>
+                        <li key={`${result.title}-${result.id}`}>
                             <Book onChange={this.change}
                                   id={result.id}
                                   bookshelf={this.getShelf(result.id)}

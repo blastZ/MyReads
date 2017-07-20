@@ -2,14 +2,17 @@ import React from 'react'
 import * as BooksAPI from './BooksAPI'
 import './css/App.css'
 import SearchView from './SearchView.js'
-import CurrentlyReading from './CurrentlyReading.js'
-import WantToRead from './WantToRead.js'
-import Read from './Read.js'
+import BookShelf from './BookShelf.js'
 import { Route, Link } from 'react-router-dom'
 
 class BooksApp extends React.Component {
     state = {
-        bookList: []
+        bookList: [],
+        shelves: {
+            currentlyReading: 'Currently Reading',
+            wantToRead: 'Want to Read',
+            read: 'Read'
+        }
     }
 
     componentDidMount() {
@@ -73,11 +76,11 @@ class BooksApp extends React.Component {
                         <div className="list-books-title">
                             <h1>MyReads</h1>
                         </div>
-                        <div className="list-books-content">
-                            <CurrentlyReading onChangeBookshelf={this.changeBookshelf} bookList={this.state.bookList}/>
-                            <WantToRead onChangeBookshelf={this.changeBookshelf} bookList={this.state.bookList}/>
-                            <Read onChangeBookshelf={this.changeBookshelf} bookList={this.state.bookList}/>
-                        </div>
+                        <div className="list-books-content">{
+                            Object.keys(this.state.shelves).map((shelfKey) => (
+                                <BookShelf key={shelfKey} onChangeBookshelf={this.changeBookshelf} bookList={this.state.bookList.filter((book) => (book.shelf === shelfKey))} shelfName={this.state.shelves[shelfKey]}/>
+                            ))
+                        }</div>
                         <div className="open-search">
                             <Link to="search">Add a book</Link>
                         </div>
